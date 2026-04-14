@@ -24,7 +24,7 @@
   <style>
     :root {
       --bg: #0a0a0a; --surface: #111111; --card: #1a1a1a;
-      --border: #2a2a2a; --border2: #333333; --accent: #00d4aa;
+      --border: #2a2a2a; --border2: #333333; --accent: #8b5cf6;
       --accent2: #3b82f6; --danger: #ff3333; --text: #e0e0e0;
       --text2: #a0a0a0; --text3: #666666;
       --font: 'IBM Plex Sans Arabic', sans-serif;
@@ -64,7 +64,7 @@
       background: linear-gradient(135deg, var(--accent), var(--accent2));
       border-radius: 10px;
       display: flex; align-items: center; justify-content: center;
-      font-size: 18px; color: #000;
+      font-size: 18px; color: #fff;
     }
     
     .logo-text h1 { font-size: 18px; font-weight: 700; color: var(--text); }
@@ -120,7 +120,7 @@
     }
     
     .message.user .message-avatar { background: var(--accent2); color: white; }
-    .message.assistant .message-avatar { background: var(--accent); color: black; }
+    .message.assistant .message-avatar { background: var(--accent); color: white; }
     
     .message-content { flex: 1; min-width: 0; }
     
@@ -196,7 +196,7 @@
       background: var(--accent);
       border: none;
       border-radius: 15px;
-      color: #000;
+      color: #fff;
       font-size: 18px;
       cursor: pointer;
       transition: all 0.15s;
@@ -263,7 +263,7 @@
       display: flex; align-items: center; justify-content: center;
       font-size: 36px;
       margin: 0 auto 24px;
-      color: #000;
+      color: #fff;
     }
     
     .api-key-card h2 {
@@ -304,7 +304,7 @@
       background: linear-gradient(135deg, var(--accent), var(--accent2));
       border: none;
       border-radius: 16px;
-      color: #000;
+      color: #fff;
       font-family: var(--font);
       font-size: 1rem;
       font-weight: 700;
@@ -318,7 +318,7 @@
     
     .api-key-btn:hover {
       transform: translateY(-2px);
-      box-shadow: 0 8px 20px rgba(0,212,170,0.2);
+      box-shadow: 0 8px 20px rgba(139, 92, 246, 0.3);
     }
     
     .api-key-note {
@@ -340,11 +340,11 @@
   <div class="api-key-screen" id="apiKeyScreen">
     <div class="api-key-card">
       <div class="api-key-icon"><i class="fa-solid fa-key"></i></div>
-      <h2>أدخل مفتاح DeepSeek API</h2>
-      <p>للحصول على مفتاح مجاني، سجل في <a href="https://platform.deepseek.com" target="_blank">platform.deepseek.com</a></p>
-      <input type="password" class="api-key-input" id="apiKeyInput" placeholder="sk-xxxxxxxxxxxxxxxxxxxxxxxx" autocomplete="off">
+      <h2>أدخل مفتاح Gemini API</h2>
+      <p>للحصول على مفتاح مجاني، سجل في <a href="https://aistudio.google.com" target="_blank">Google AI Studio</a></p>
+      <input type="password" class="api-key-input" id="apiKeyInput" placeholder="AIza...">
       <button class="api-key-btn" id="saveApiKeyBtn"><i class="fa-solid fa-check"></i> حفظ المفتاح</button>
-      <p class="api-key-note">🔒 المفتاح يُحفظ في جهازك فقط ولا يُرسل لأي مكان.</p>
+      <p class="api-key-note">🔒 المفتاح يُحفظ في جهازك فقط.</p>
       <div class="api-key-error" id="apiKeyError"></div>
     </div>
   </div>
@@ -383,8 +383,8 @@
 
   <script>
     // ========== إدارة API Key ==========
-    const API_URL = 'https://api.deepseek.com/v1/chat/completions';
-    let API_KEY = localStorage.getItem('sira_api_key') || '';
+    const API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
+    let API_KEY = localStorage.getItem('sira_gemini_key') || '';
     
     const apiKeyScreen = document.getElementById('apiKeyScreen');
     const apiKeyInput = document.getElementById('apiKeyInput');
@@ -415,16 +415,11 @@
     
     async function validateApiKey(key) {
       try {
-        const response = await fetch(API_URL, {
+        const response = await fetch(`${API_URL}?key=${key}`, {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${key}`
-          },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            model: 'deepseek-chat',
-            messages: [{ role: 'user', content: 'قل مرحباً' }],
-            max_tokens: 10
+            contents: [{ parts: [{ text: 'Say hello' }] }]
           })
         });
         return response.ok;
@@ -437,7 +432,6 @@
       const key = apiKeyInput.value.trim();
       
       if (!key) { apiKeyError.textContent = 'الرجاء إدخال المفتاح'; return; }
-      if (!key.startsWith('sk-')) { apiKeyError.textContent = 'المفتاح يجب أن يبدأ بـ sk-'; return; }
       
       saveApiKeyBtn.innerHTML = '<i class="fa-solid fa-spinner fa-pulse"></i> جاري التحقق...';
       saveApiKeyBtn.disabled = true;
@@ -446,12 +440,12 @@
       
       if (isValid) {
         API_KEY = key;
-        localStorage.setItem('sira_api_key', key);
+        localStorage.setItem('sira_gemini_key', key);
         hideApiKeyScreen();
         updateApiStatus();
         addMessage('assistant', '✅ تم الاتصال بنجاح! أنا Sira AI، كيف أقدر أساعدك؟');
       } else {
-        apiKeyError.textContent = 'المفتاح غير صالح أو الرصيد منتهي';
+        apiKeyError.textContent = 'المفتاح غير صالح';
       }
       
       saveApiKeyBtn.innerHTML = '<i class="fa-solid fa-check"></i> حفظ المفتاح';
@@ -537,40 +531,29 @@
       addTypingIndicator();
       
       try {
-        const response = await fetch(API_URL, {
+        // بناء المحادثة كاملة
+        const conversationText = `System: أنت Sira AI، مساعد ذكي ومفيد. أجب باللغة العربية دائماً. كن ودوداً ومختصراً.\n\n` +
+          messages.map(m => `${m.role === 'user' ? 'User' : 'Assistant'}: ${m.content}`).join('\n') +
+          `\nAssistant: `;
+        
+        const response = await fetch(`${API_URL}?key=${API_KEY}`, {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${API_KEY}`
-          },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            model: 'deepseek-chat',
-            messages: [
-              { role: 'system', content: 'أنت Sira AI، مساعد ذكي ومفيد. أجب باللغة العربية دائماً. كن ودوداً ومختصراً.' },
-              ...messages
-            ],
-            stream: false,
-            temperature: 0.7,
-            max_tokens: 1000
+            contents: [{ parts: [{ text: conversationText }] }],
+            generationConfig: { maxOutputTokens: 1000, temperature: 0.7 }
           })
         });
         
         const data = await response.json();
         removeTypingIndicator();
         
-        if (data.choices && data.choices[0]) {
-          const reply = data.choices[0].message.content;
+        if (data.candidates && data.candidates[0]) {
+          const reply = data.candidates[0].content.parts[0].text;
           addMessage('assistant', reply);
           messages.push({ role: 'assistant', content: reply });
         } else {
-          if (response.status === 401 || response.status === 402) {
-            addMessage('assistant', '⚠️ المفتاح غير صالح أو الرصيد منتهي. الرجاء تحديث المفتاح.');
-            API_KEY = '';
-            localStorage.removeItem('sira_api_key');
-            updateApiStatus();
-          } else {
-            addMessage('assistant', 'عذراً، حدث خطأ في الاتصال.');
-          }
+          addMessage('assistant', '⚠️ عذراً، حدث خطأ. تأكد من المفتاح.');
         }
       } catch (error) {
         removeTypingIndicator();
@@ -603,7 +586,7 @@
     
     if (API_KEY) {
       hideApiKeyScreen();
-      addMessage('assistant', '👋 مرحباً! أنا Sira AI، مساعدك الذكي. كيف أقدر أساعدك اليوم؟');
+      addMessage('assistant', '👋 مرحباً! أنا Sira AI مع Gemini، كيف أقدر أساعدك اليوم؟');
     } else {
       showApiKeyScreen();
     }
