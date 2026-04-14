@@ -1,0 +1,18 @@
+{
+  "name": "Sira AI - مساعدك الذكي",
+  "short_name": "Sira AI",
+  "description": "مساعد ذكي يعمل بـ DeepSeek API - مجاني وسريع",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0a0a0a",
+  "theme_color": "#00d4aa",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
